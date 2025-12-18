@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QDialog, QMessageBox, QAbstractItemView, QPushButton, QLineEdit, QTableView
 from main_window_ui import Ui_Dialog
-from .library_viewmodel import LibraryViewModel
-from .table_model import BookTableModel
+from library_viewmodel import LibraryViewModel
+from table_model import BookTableModel
 from PyQt5.QtCore import Qt
 
 class LibraryMainView(QDialog, Ui_Dialog):
@@ -32,6 +32,7 @@ class LibraryMainView(QDialog, Ui_Dialog):
             self.btn_delete.clicked.connect(self.handle_delete_book)
         
         self.refresh_table()
+        self.vm.dataValidationError.connect(self.show_errors)
 
     def refresh_table(self):
         books = self.vm.get_all_books()
