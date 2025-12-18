@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QDialog, QMessageBox, QAbstractItemView, QPushButton
 from main_window_ui import Ui_Dialog
 from .library_viewmodel import LibraryViewModel
 from .table_model import BookTableModel
+from PyQt5.QtCore import Qt
 
 class LibraryMainView(QDialog, Ui_Dialog):
     def __init__(self):
@@ -19,6 +20,7 @@ class LibraryMainView(QDialog, Ui_Dialog):
 
       
         if self.table_books:
+            self.table_books.setLayoutDirection(Qt.RightToLeft)
             self.table_books.setSelectionBehavior(QAbstractItemView.SelectRows) 
             self.table_books.setEditTriggers(QAbstractItemView.NoEditTriggers)
             self.table_books.horizontalHeader().setStretchLastSection(True)
