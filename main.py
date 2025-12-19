@@ -1,9 +1,9 @@
 import sys
 from PyQt5.QtWidgets import QApplication
-from Book.main_view import LibraryMainView
+from User.login_view import LoginView
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = LibraryMainView()
-    window.show()
+    dlg = LoginView()
+    dlg.show()
     sys.exit(app.exec_())

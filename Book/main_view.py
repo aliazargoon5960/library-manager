@@ -1,21 +1,27 @@
-from PyQt5.QtWidgets import QDialog, QMessageBox, QAbstractItemView, QPushButton, QLineEdit, QTableView, QLabel
-from main_window_ui import Ui_Dialog
+from PyQt5.QtWidgets import QDialog, QMessageBox, QAbstractItemView
+from PyQt5.QtWidgets import QPushButton, QLineEdit, QTableView, QLabel
+from PyQt5.QtCore import Qt
+from ui.main_window_ui import Ui_Dialog
 from .library_viewmodel import LibraryViewModel
 from .table_model import BookTableModel
-from PyQt5.QtCore import Qt
+from Borrow.borrowed_books_view import BorrowedBooksView  # صفحه کتاب‌های قرضی
+
 
 class LibraryMainView(QDialog, Ui_Dialog):
-    def __init__(self):
+    def __init__(self, current_user):
         super().__init__()
         self.setupUi(self)
 
-       
-        self.vm = LibraryViewModel()
-        self.vm.dataValidationError.connect(self.show_errors) 
+        self.current_user = current_user  # کاربر فعلی
 
-       
+        # ViewModel
+        self.vm = LibraryViewModel()
+        self.vm.dataValidationError.connect(self.show_errors)
+
+        # اجزا UI
         self.btn_add = self.findChild(QPushButton, "btn_add")
         self.btn_delete = self.findChild(QPushButton, "btn_delete")
+        self.btn_borrowed_books = self.findChild(QPushButton, "btn_borrowed_books")
         self.txt_title = self.findChild(QLineEdit, "txt_title")
         self.txt_author = self.findChild(QLineEdit, "txt_author")
         self.txt_isbn = self.findChild(QLineEdit, "txt_isbn")
@@ -31,34 +37,35 @@ class LibraryMainView(QDialog, Ui_Dialog):
             'isbn': self.lbl_isbn_error,
         }
 
-      
+        # تنظیمات جدول
         self.table_books.setLayoutDirection(Qt.RightToLeft)
         self.table_books.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table_books.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.table_books.horizontalHeader().setStretchLastSection(True)
 
-        
-       
+        # اتصال سیگنال‌ها
         self.btn_add.clicked.connect(self.handle_add_book)
         self.btn_delete.clicked.connect(self.handle_delete_book)
+        self.btn_borrowed_books.clicked.connect(self.show_borrowed_books)
 
+        # بارگذاری داده‌ها
         self.refresh_table()
 
-  
+    # بروزرسانی جدول کتاب‌ها
     def refresh_table(self):
         books = self.vm.get_all_books()
         self.table_model = BookTableModel(books)
         if self.table_books:
             self.table_books.setModel(self.table_model)
 
-
-
+    # پاک کردن برچسب خطا
     def clear_labels(self):
         for label in self.error_labels_map.values():
             label.setStyleSheet("color: red")
             label.setText("")
             label.hide()
 
+    # نمایش خطاها
     def show_errors(self, errors: dict):
         self.clear_labels()
         for field, errors_list in errors.items():
@@ -67,7 +74,7 @@ class LibraryMainView(QDialog, Ui_Dialog):
                 label.setText('\n'.join(errors_list))
                 label.show()
 
-
+    # اضافه کردن کتاب
     def handle_add_book(self):
         title = self.txt_title.text()
         author = self.txt_author.text()
@@ -82,7 +89,7 @@ class LibraryMainView(QDialog, Ui_Dialog):
             self.txt_isbn.clear()
             self.clear_labels()
 
-
+    # حذف کتاب
     def handle_delete_book(self):
         if not self.table_books:
             return
@@ -97,3 +104,8 @@ class LibraryMainView(QDialog, Ui_Dialog):
 
         if self.vm.delete_book(book_id):
             self.refresh_table()
+
+    # نمایش صفحه کتاب‌های قرضی
+    def show_borrowed_books(self):
+        self.borrowed_view = BorrowedBooksView(current_user=self.current_user)
+        self.borrowed_view.exec_()

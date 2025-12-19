@@ -1,8 +1,8 @@
 from PyQt5.QtCore import QObject, pyqtSignal
 from database.db_setup import SessionLocal
 from .book_model import Book
-from .book_schema import BookSchema
-from .utils import normalize_pydantic_error_schema
+from validator.book_schema import BookSchema
+from validator.utils import normalize_pydantic_error_schema
 from pydantic import ValidationError
 
 class LibraryViewModel(QObject):
