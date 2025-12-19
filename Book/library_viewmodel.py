@@ -14,24 +14,31 @@ class LibraryViewModel:
         return self.db.query(Book).all()
 
 
-    def add_book(self, title, author, isbn):
+    def validate(self, title, author, isbn):
         try:
-            BookSchema(title=title, author=author, isbn=isbn)
+            validated = BookSchema(title=title, author=author, isbn=isbn)
+            self.dataValidationError({})  
+            return validated
         except ValidationError as e:
             errors = normalize_pydantic_error_schema(e.errors())
             self.dataValidationError(errors)
+            return None
+
+    def add_book(self, title, author, isbn):
+        validated = self.validate(title, author, isbn)
+        if not validated:
             return False
 
-      
         exists = self.db.query(Book).filter(Book.isbn == isbn).first()
         if exists:
             self.dataValidationError({'isbn': ['کتابی با این ISBN قبلاً ثبت شده است']})
             return False
 
+      
         new_book = Book(title=title.strip(), author=author.strip(), isbn=isbn.strip())
         self.db.add(new_book)
         self.db.commit()
-        self.dataValidationError({})
+        self.dataValidationError({}) 
         return True
 
 
