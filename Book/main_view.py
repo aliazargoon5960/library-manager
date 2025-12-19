@@ -8,10 +8,10 @@ class LibraryMainView(QDialog, Ui_Dialog):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        
-        # ViewModel
+
+       
         self.vm = LibraryViewModel()
-        self.vm.dataValidationError = self.show_errors  
+        self.vm.dataValidationError.connect(self.show_errors)  # اتصال سیگنال واقعی
 
        
         self.btn_add = self.findChild(QPushButton, "btn_add")
@@ -21,11 +21,9 @@ class LibraryMainView(QDialog, Ui_Dialog):
         self.txt_isbn = self.findChild(QLineEdit, "txt_isbn")
         self.table_books = self.findChild(QTableView, "table_books")
 
-        
         self.lbl_title_error = self.findChild(QLabel, "lbl_title_error")
         self.lbl_author_error = self.findChild(QLabel, "lbl_author_error")
         self.lbl_isbn_error = self.findChild(QLabel, "lbl_isbn_error")
-
 
         self.error_labels_map = {
             'title': self.lbl_title_error,
@@ -33,30 +31,28 @@ class LibraryMainView(QDialog, Ui_Dialog):
             'isbn': self.lbl_isbn_error,
         }
 
+      
+        self.table_books.setLayoutDirection(Qt.RightToLeft)
+        self.table_books.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table_books.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.table_books.horizontalHeader().setStretchLastSection(True)
+
+        
        
-        if self.table_books:
-            self.table_books.setLayoutDirection(Qt.RightToLeft)
-            self.table_books.setSelectionBehavior(QAbstractItemView.SelectRows) 
-            self.table_books.setEditTriggers(QAbstractItemView.NoEditTriggers)
-            self.table_books.horizontalHeader().setStretchLastSection(True)
+        self.btn_add.clicked.connect(self.handle_add_book)
+        self.btn_delete.clicked.connect(self.handle_delete_book)
 
-
-        if self.btn_add:
-            self.btn_add.clicked.connect(self.handle_add_book)
-        if self.btn_delete:
-            self.btn_delete.clicked.connect(self.handle_delete_book)
-        
-        
         self.refresh_table()
 
-   
+  
     def refresh_table(self):
         books = self.vm.get_all_books()
         self.table_model = BookTableModel(books)
         if self.table_books:
             self.table_books.setModel(self.table_model)
 
-   
+
+
     def clear_labels(self):
         for label in self.error_labels_map.values():
             label.setStyleSheet("color: red")
@@ -84,8 +80,9 @@ class LibraryMainView(QDialog, Ui_Dialog):
             self.txt_title.clear()
             self.txt_author.clear()
             self.txt_isbn.clear()
-            self.clear_labels()  
-            
+            self.clear_labels()
+
+
     def handle_delete_book(self):
         if not self.table_books:
             return
@@ -94,9 +91,9 @@ class LibraryMainView(QDialog, Ui_Dialog):
         if not selected_indexes:
             QMessageBox.warning(self, "خطا", "لطفاً یک ردیف را انتخاب کنید.")
             return
-            
+
         row = selected_indexes[0].row()
         book_id = int(self.table_model.books[row].id)
-        
+
         if self.vm.delete_book(book_id):
             self.refresh_table()
