@@ -11,7 +11,7 @@ class LibraryMainView(QDialog, Ui_Dialog):
 
        
         self.vm = LibraryViewModel()
-        self.vm.dataValidationError.connect(self.show_errors)  # اتصال سیگنال واقعی
+        self.vm.dataValidationError.connect(self.show_errors) 
 
        
         self.btn_add = self.findChild(QPushButton, "btn_add")
