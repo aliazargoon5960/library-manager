@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QMessageBox, QAbstractItemView, QPushButton, QLineEdit, QTableView
+from PyQt5.QtWidgets import QDialog, QMessageBox, QAbstractItemView, QPushButton, QLineEdit, QTableView, QLabel
 from main_window_ui import Ui_Dialog
 from .library_viewmodel import LibraryViewModel
 from .table_model import BookTableModel
@@ -9,10 +9,11 @@ class LibraryMainView(QDialog, Ui_Dialog):
         super().__init__()
         self.setupUi(self)
         
+        # ViewModel
         self.vm = LibraryViewModel()
+        self.vm.dataValidationError = self.show_errors  
 
-        # پیدا کردن ویجت‌ها با استفاده از findChild
-        # این کار باعث می‌شود مستقیماً به نام‌های تعریف شده در Qt Designer دسترسی داشته باشیم
+       
         self.btn_add = self.findChild(QPushButton, "btn_add")
         self.btn_delete = self.findChild(QPushButton, "btn_delete")
         self.txt_title = self.findChild(QLineEdit, "txt_title")
@@ -20,41 +21,71 @@ class LibraryMainView(QDialog, Ui_Dialog):
         self.txt_isbn = self.findChild(QLineEdit, "txt_isbn")
         self.table_books = self.findChild(QTableView, "table_books")
 
-        # تنظیمات جدول
+        
+        self.lbl_title_error = self.findChild(QLabel, "lbl_title_error")
+        self.lbl_author_error = self.findChild(QLabel, "lbl_author_error")
+        self.lbl_isbn_error = self.findChild(QLabel, "lbl_isbn_error")
+
+
+        self.error_labels_map = {
+            'title': self.lbl_title_error,
+            'author': self.lbl_author_error,
+            'isbn': self.lbl_isbn_error,
+        }
+
+       
         if self.table_books:
             self.table_books.setLayoutDirection(Qt.RightToLeft)
             self.table_books.setSelectionBehavior(QAbstractItemView.SelectRows) 
             self.table_books.setEditTriggers(QAbstractItemView.NoEditTriggers)
             self.table_books.horizontalHeader().setStretchLastSection(True)
 
-        # اتصال سیگنال‌ها
+
         if self.btn_add:
             self.btn_add.clicked.connect(self.handle_add_book)
         if self.btn_delete:
             self.btn_delete.clicked.connect(self.handle_delete_book)
         
+        
         self.refresh_table()
 
+   
     def refresh_table(self):
         books = self.vm.get_all_books()
         self.table_model = BookTableModel(books)
         if self.table_books:
             self.table_books.setModel(self.table_model)
 
+   
+    def clear_labels(self):
+        for label in self.error_labels_map.values():
+            label.setStyleSheet("color: red")
+            label.setText("")
+            label.hide()
+
+    def show_errors(self, errors: dict):
+        self.clear_labels()
+        for field, errors_list in errors.items():
+            label = self.error_labels_map.get(field)
+            if label:
+                label.setText('\n'.join(errors_list))
+                label.show()
+
+
     def handle_add_book(self):
-        # گرفتن متن از ویجت‌هایی که با findChild پیدا کردیم
         title = self.txt_title.text()
         author = self.txt_author.text()
         isbn = self.txt_isbn.text()
-        
-        if self.vm.add_book(title, author, isbn):
+
+        success = self.vm.add_book(title, author, isbn)
+
+        if success:
             self.refresh_table()
             self.txt_title.clear()
             self.txt_author.clear()
             self.txt_isbn.clear()
-        else:
-            QMessageBox.warning(self, "خطا", "لطفاً تمام فیلدها را پر کنید.")
-
+            self.clear_labels()  
+            
     def handle_delete_book(self):
         if not self.table_books:
             return
