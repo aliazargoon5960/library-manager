@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QDialog, QMessageBox, QAbstractItemView, QPushButton, QLineEdit, QTableView
 from main_window_ui import Ui_Dialog
-from library_viewmodel import LibraryViewModel
-from table_model import BookTableModel
+from .library_viewmodel import LibraryViewModel
+from .table_model import BookTableModel
 from PyQt5.QtCore import Qt
 
 class LibraryMainView(QDialog, Ui_Dialog):
@@ -11,6 +11,8 @@ class LibraryMainView(QDialog, Ui_Dialog):
         
         self.vm = LibraryViewModel()
 
+        # پیدا کردن ویجت‌ها با استفاده از findChild
+        # این کار باعث می‌شود مستقیماً به نام‌های تعریف شده در Qt Designer دسترسی داشته باشیم
         self.btn_add = self.findChild(QPushButton, "btn_add")
         self.btn_delete = self.findChild(QPushButton, "btn_delete")
         self.txt_title = self.findChild(QLineEdit, "txt_title")
@@ -18,21 +20,20 @@ class LibraryMainView(QDialog, Ui_Dialog):
         self.txt_isbn = self.findChild(QLineEdit, "txt_isbn")
         self.table_books = self.findChild(QTableView, "table_books")
 
-      
+        # تنظیمات جدول
         if self.table_books:
             self.table_books.setLayoutDirection(Qt.RightToLeft)
             self.table_books.setSelectionBehavior(QAbstractItemView.SelectRows) 
             self.table_books.setEditTriggers(QAbstractItemView.NoEditTriggers)
             self.table_books.horizontalHeader().setStretchLastSection(True)
 
-       
+        # اتصال سیگنال‌ها
         if self.btn_add:
             self.btn_add.clicked.connect(self.handle_add_book)
         if self.btn_delete:
             self.btn_delete.clicked.connect(self.handle_delete_book)
         
         self.refresh_table()
-        self.vm.dataValidationError.connect(self.show_errors)
 
     def refresh_table(self):
         books = self.vm.get_all_books()
@@ -41,6 +42,7 @@ class LibraryMainView(QDialog, Ui_Dialog):
             self.table_books.setModel(self.table_model)
 
     def handle_add_book(self):
+        # گرفتن متن از ویجت‌هایی که با findChild پیدا کردیم
         title = self.txt_title.text()
         author = self.txt_author.text()
         isbn = self.txt_isbn.text()

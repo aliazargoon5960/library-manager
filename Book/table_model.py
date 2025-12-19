@@ -14,6 +14,11 @@ class BookTableModel(QAbstractTableModel):
             if col == 1: return book.title
             if col == 2: return book.author
             if col == 3: return book.isbn
+        
+
+        if role == Qt.TextAlignmentRole:
+            return Qt.AlignRight | Qt.AlignVCenter
+            
         return None
 
     def rowCount(self, index=None):
