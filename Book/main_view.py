@@ -21,7 +21,7 @@ class LibraryMainView(QDialog, Ui_Dialog):
         # اجزا UI
         self.btn_add = self.findChild(QPushButton, "btn_add")
         self.btn_delete = self.findChild(QPushButton, "btn_delete")
-        self.btn_borrowed_books = self.findChild(QPushButton, "btn_borrowed_books")
+        self.btn_borrowed_books = self.findChild(QPushButton, "btnBorrowedBooks")
         self.txt_title = self.findChild(QLineEdit, "txt_title")
         self.txt_author = self.findChild(QLineEdit, "txt_author")
         self.txt_isbn = self.findChild(QLineEdit, "txt_isbn")

@@ -181,3 +181,5 @@ cython_debug/
 .cursorindexingignore
 
 *db
+*.ui
+seed_db.py

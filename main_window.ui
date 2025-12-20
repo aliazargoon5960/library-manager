@@ -100,9 +100,23 @@
      <widget class="QTableView" name="table_books"/>
     </item>
     <item>
+     <widget class="QPushButton" name="btnBorrow&#10;">
+      <property name="text">
+       <string>قرض گرفتن کتاب</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QPushButton" name="btn_delete">
       <property name="text">
        <string>حذف کتاب انتخاب شده</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btnBorrowedBooks&#10;">
+      <property name="text">
+       <string>کتاب های قرضی</string>
       </property>
      </widget>
     </item>
