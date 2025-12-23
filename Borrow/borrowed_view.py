@@ -39,7 +39,7 @@ class BorrowedBooksView(QDialog, Ui_Dialog):
             # ستون 1: نام کاربری
             self.tableWidget.setItem(row, 1, QTableWidgetItem(borrow.user.username))
             # ستون 2: تاریخ قرض
-            self.tableWidget.setItem(row, 2, QTableWidgetItem(borrow.borrowed_at.strftime("%Y-%m-%d %H:%M")))
+            self.tableWidget.setItem(row, 2, QTableWidgetItem(borrow.borrowed_at_jalali))
             # ستون 3: وضعیت
             self.tableWidget.setItem(row, 3, QTableWidgetItem(borrow.status))
 

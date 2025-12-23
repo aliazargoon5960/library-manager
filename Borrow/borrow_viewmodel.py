@@ -1,11 +1,10 @@
 from datetime import datetime
-
 from sqlalchemy.orm import Session
-
 from database.db_setup import SessionLocal
 from Borrow.borrowed_model import BorrowedBook
 from Book.book_model import Book
 from User.user_model import User
+import jdatetime
 
 
 class BorrowViewModel:
@@ -61,6 +60,15 @@ class BorrowViewModel:
         self.db.commit()
 
         return True, "کتاب با موفقیت قرض داده شد"
+    
+
+    def to_jalali(self, date):
+        if not date:
+            return ""
+        return jdatetime.datetime.fromgregorian(
+            datetime=date
+        ).strftime("%Y/%m/%d %H:%M")
+
 
     # --------------------------------------------------
     # پس گرفتن کتاب
@@ -92,12 +100,18 @@ class BorrowViewModel:
     # لیست کتاب‌های قرضی فعال
     # --------------------------------------------------
     def get_active_borrows(self):
-        return (
+        borrows = (
             self.db.query(BorrowedBook)
             .filter(BorrowedBook.is_active.is_(True))
             .order_by(BorrowedBook.borrowed_at.desc())
             .all()
         )
+
+        for b in borrows:
+            b.borrowed_at_jalali = self.to_jalali(b.borrowed_at)
+
+        return borrows
+
 
     # --------------------------------------------------
     # تاریخچه قرض‌های یک کاربر
